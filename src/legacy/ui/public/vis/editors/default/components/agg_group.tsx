@@ -35,6 +35,7 @@ import { DefaultEditorAggCommonProps } from './agg_common_props';
 import { isInvalidAggsTouched, isAggRemovable, calcAggIsTooLow } from './agg_group_helper';
 import { aggGroupReducer, initAggsState, AGGS_ACTION_KEYS } from './agg_group_state';
 import { Schema } from '../schemas';
+import MyDragAndDrop from './drag_and_drop';
 
 export interface DefaultEditorAggGroupProps extends DefaultEditorAggCommonProps {
   schemas: Schema[];
@@ -131,58 +132,61 @@ function DefaultEditorAggGroup({
   };
 
   return (
-    <EuiDragDropContext onDragEnd={onDragEnd}>
-      <EuiPanel paddingSize="s">
-        <EuiTitle size="xs">
-          <div>{groupNameLabel}</div>
-        </EuiTitle>
-        <EuiSpacer size="s" />
-        <EuiDroppable droppableId={`agg_group_dnd_${groupName}`}>
-          <>
-            {group.map((agg: AggConfig, index: number) => (
-              <EuiDraggable
-                key={agg.id}
-                index={index}
-                draggableId={`agg_group_dnd_${groupName}_${agg.id}`}
-                customDragHandle={true}
-              >
-                {provided => (
-                  <DefaultEditorAgg
-                    agg={agg}
-                    aggIndex={index}
-                    aggIsTooLow={calcAggIsTooLow(agg, index, group)}
-                    dragHandleProps={provided.dragHandleProps}
-                    formIsTouched={aggsState[agg.id] ? aggsState[agg.id].touched : false}
-                    groupName={groupName}
-                    isDraggable={stats.count > 1}
-                    isLastBucket={groupName === AggGroupNames.Buckets && index === group.length - 1}
-                    isRemovable={isAggRemovable(agg, group)}
-                    lastParentPipelineAggTitle={lastParentPipelineAggTitle}
-                    metricAggs={metricAggs}
-                    state={state}
-                    onAggParamsChange={onAggParamsChange}
-                    onAggTypeChange={onAggTypeChange}
-                    onToggleEnableAgg={onToggleEnableAgg}
-                    removeAgg={removeAgg}
-                    setTouched={isTouched => setTouchedHandler(agg.id, isTouched)}
-                    setValidity={isValid => setValidityHandler(agg.id, isValid)}
-                  />
-                )}
-              </EuiDraggable>
-            ))}
-          </>
-        </EuiDroppable>
-        {stats.max > stats.count && (
-          <DefaultEditorAggAdd
-            group={group}
-            groupName={groupName}
-            schemas={schemas}
-            stats={stats}
-            addSchema={addSchema}
-          />
-        )}
-      </EuiPanel>
-    </EuiDragDropContext>
+    <>
+      <MyDragAndDrop />
+      <EuiDragDropContext onDragEnd={onDragEnd}>
+        <EuiPanel paddingSize="s">
+          <EuiTitle size="xs">
+            <div>{groupNameLabel}</div>
+          </EuiTitle>
+          <EuiSpacer size="s" />
+          <EuiDroppable droppableId={`agg_group_dnd_${groupName}`}>
+            <>
+              {group.map((agg: AggConfig, index: number) => (
+                <EuiDraggable
+                  key={agg.id}
+                  index={index}
+                  draggableId={`agg_group_dnd_${groupName}_${agg.id}`}
+                  customDragHandle={true}
+                >
+                  {provided => (
+                    <DefaultEditorAgg
+                      agg={agg}
+                      aggIndex={index}
+                      aggIsTooLow={calcAggIsTooLow(agg, index, group)}
+                      dragHandleProps={provided.dragHandleProps}
+                      formIsTouched={aggsState[agg.id] ? aggsState[agg.id].touched : false}
+                      groupName={groupName}
+                      isDraggable={stats.count > 1}
+                      isLastBucket={groupName === AggGroupNames.Buckets && index === group.length - 1}
+                      isRemovable={isAggRemovable(agg, group)}
+                      lastParentPipelineAggTitle={lastParentPipelineAggTitle}
+                      metricAggs={metricAggs}
+                      state={state}
+                      onAggParamsChange={onAggParamsChange}
+                      onAggTypeChange={onAggTypeChange}
+                      onToggleEnableAgg={onToggleEnableAgg}
+                      removeAgg={removeAgg}
+                      setTouched={isTouched => setTouchedHandler(agg.id, isTouched)}
+                      setValidity={isValid => setValidityHandler(agg.id, isValid)}
+                    />
+                  )}
+                </EuiDraggable>
+              ))}
+            </>
+          </EuiDroppable>
+          {stats.max > stats.count && (
+            <DefaultEditorAggAdd
+              group={group}
+              groupName={groupName}
+              schemas={schemas}
+              stats={stats}
+              addSchema={addSchema}
+            />
+          )}
+        </EuiPanel>
+      </EuiDragDropContext>
+    </>
   );
 }
 
